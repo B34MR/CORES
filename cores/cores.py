@@ -81,13 +81,13 @@ def get_internal_address():
 	s.connect(("8.8.8.8", 80))
 	return s.getsockname()[0]
 
-def browser_launch(url, port):
+def browser_launch(url):
 	''' Auto Launches Firefox '''
 	try:
 	    browser_path = "/usr/bin/firefox %s"  
 	except:
 	    print("Firefox not found!")
-	webbrowser.get(str(browser_path)).open(url+":"+str(port)+"/")
+	webbrowser.get(str(browser_path)).open(url)
 
 def cors_js_template(style, method, url, filename):
 	'''1. Create CORS template for JavaScript Payload '''
@@ -216,12 +216,13 @@ if __name__ == '__main__':
 	# Start server
 	server_start(args.p)
 	print(blue('i')+ 'Target URL:  '+ args.url)
-	print(blue('i')+ 'HTTP Server: http://%s:%s/%s' %(ipAddress, args.p, html_name))
+	server_url = 'http://%s:%s/%s' %(ipAddress, args.p, html_name)
+	print(blue('i')+'HTTP Server: %s'%(server_url))
 	print('\n')
 
 	# Check for (-a)uto Launch
 	if args.a:
-		browser_launch(ipAddress, args.p)
+		browser_launch(server_url)
 	else:
 		pass
 	# Catch ^C sigint
