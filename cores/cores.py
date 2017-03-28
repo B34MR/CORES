@@ -142,29 +142,26 @@ def server_start(port):
 	# Daemon True will stop the server once the script completes.
 	server_process.daemon = False
 	server_process.start()
-	print(blue('-')+ 'HTTP Server started on Port: ' + str(httpPort))
+	print(blue('*')+ 'HTTP Server started on Port: ' + str(httpPort))
 
 
 def main():
-	# return args
-	args = parse_args()
+	# Banner
+	cls()
+	banner(App, Version, Author, Contributors)
 	# Staging variables for JS
 	js_name = 'cors.js'
 	js_dir = str(os.path.expanduser('js/'))
 	js_path = os.path.join(js_dir, js_name)
+	# Check for js dir
+	dir_check(js_dir)
 	# Staging variables for HTML
 	html_name = 'index.html'
 	html_dir = str(os.path.expanduser(''))
 	html_path = os.path.join(html_dir, html_name)	
+	# return args
+	args = parse_args()
 	
-	# Create payload file
-	cors_js = cors_js_template(args.s, args.m, args.url, js_path)
-	html_indexPage = html_template(cors_js, html_path)
-	
-	# Banner
-	cls()
-	banner(App, Version, Author, Contributors)
-	dir_check(js_dir)
 	# Attempt to Obtain External IP Address
 	try:
 		extipAddress = get_external_address()
@@ -173,6 +170,10 @@ def main():
 		pass #CHECK
 	# Obtain Internal IP Address	
 	ipAddress = get_internal_address()
+	
+	# Create payload file
+	cors_js = cors_js_template(args.s, args.m, args.url, js_path)
+	html_indexPage = html_template(cors_js, html_path)
 
 	# Check for (-v)erbose
 	if args.verbose:
