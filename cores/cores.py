@@ -183,7 +183,7 @@ def main():
 
 	# Start HTTP Server
 	server_start(80)
-	print(blue('i')+ 'Target URL: '+ args.url)
+	print(blue('i')+ 'Target URL:  '+ args.url)
 	print(blue('i')+ 'HTTP Server: http://'+ipAddress+'/index.html')
 	print('\n')
 
