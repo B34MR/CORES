@@ -239,7 +239,7 @@ def main():
 	# Start HTTP Server
 	server_start(args.p)
 	print(blue('i')+ 'Target URL:  '+ args.url)
-	print(blue('i')+ 'HTTP Server: http://'+ipAddress+'/index.html')
+	print(blue('i')+ 'HTTP Server: http://%s:%s/index.html' %(ipAddress, args.p))
 	print('\n')
 
 if __name__ == "__main__":
