@@ -87,7 +87,7 @@ def sigint_handler(signal, frame):
 
 	try:
 		print('Trying to stop server process %s' % str(serverPid))
-		os.kill(serverPid)
+		os.kill(int(serverPid),9)
 	except Exception as e:
 		print(e)
 		pass
@@ -197,6 +197,12 @@ def server_start(port):
 	print(blue('*')+ 'HTTP Server started on Port: %s and PID: %s' % (str(httpPort),str(serverPid)))
 
 
+def server_kill():
+	try:
+		print('Trying to stop server process %s' % str(serverPid))
+		os.kill(int(serverPid),9)
+	except Exception as e:
+		print(e)
 
 
 def main():
@@ -249,11 +255,12 @@ def main():
 	signal.signal(signal.SIGTERM, sigterm_handler)
 
 if __name__ == "__main__":
-
+	#main()
 
 	try:
 		main()
 	except (KeyboardInterrupt, SystemExit):
+		server_kill()
 		raise
 	except Exception as e:
 		print('Error: %s' % e)
