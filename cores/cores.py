@@ -34,7 +34,7 @@ def parse_args():
         ' Example[2]: python cores.py https://target-site.com/ -m GET -s html -v\n')	
 	# Positional Arguments
 	url_group = parser.add_argument_group(colors.green + ' URL options' + colors.normal)
-	url_group.add_argument('url', type=str, metavar='', #required=True,
+	url_group.add_argument('url', type=str, metavar='http://site.com/path', #required=True,
 		help='<Target URL>  ex: https://target-site.com/')
 	url_group.add_argument('-m', type=str, metavar='', #required=True,
 		help='<HTTP Method> ex: https://target-site.com/ -m GET\n')
@@ -69,15 +69,30 @@ def parse_args():
 	#
 	return args
 
-def signal_handler(self, signal, frame):
+
+def sigterm_handler(signal, frame):
+	try:
+		print('Trying to stop server process %s' % str(serverPid))
+		os.kill(serverPid)
+	except Exception as e:
+		print(e)
+		pass
+
+
+
+def sigint_handler(signal, frame):
 	print('You pressed Ctrl+C! Exiting...')
-	#other cleanup functions here
+
+
+
+	try:
+		print('Trying to stop server process %s' % str(serverPid))
+		os.kill(serverPid)
+	except Exception as e:
+		print(e)
+		pass
 	sys.exit(0)
 
-	#catch sigint and stop gracefully.
-
-	#add this string below to functions
-	#signal.signal(signal.SIGINT, self.signal_handler)
 
 def dir_check(directory):
 	''' If specified directory does not exists then create specified directory '''
@@ -163,16 +178,24 @@ def html_template(javascript, filename):
 
 def server_start(port):
 	'''1. Starts Python's SimpleHTTPServer on specified port'''
-	#catch sigint
-	#signal.signal(signal.SIGINT, self.signal_handler)
+	#serverPid=None
+
 	httpPort = int(port)
 	Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
 	httpd = SocketServer.TCPServer(("",httpPort), Handler)
 	server_process = multiprocessing.Process(target=httpd.serve_forever)
+	
 	# Daemon True will stop the server once the script completes.
 	server_process.daemon = False
 	server_process.start()
-	print(blue('*')+ 'HTTP Server started on Port: ' + str(httpPort))
+	serverPid=server_process.pid
+
+
+	print(blue('*')+ 'HTTP Server started on Port: %s and PID: %s' % (str(httpPort),str(serverPid)))
+	#catch sigint
+	signal.signal(signal.SIGINT, sigint_handler)
+	signal.signal(signal.SIGTERM, sigterm_handler)
+
 
 
 def main():
@@ -220,8 +243,8 @@ def main():
 	print('\n')
 
 if __name__ == "__main__":
-
 	main()
+
 	'''try:
 		main()
 	except (KeyboardInterrupt, SystemExit):
@@ -229,5 +252,5 @@ if __name__ == "__main__":
 	except Exception as e:
 		print('Error: %s' % e)
 		print(red('!')+'HTTP Server is still running, wait and try again.')
-		pass'''
-		# report error and proceed
+		pass
+		# report error and proceed'''
