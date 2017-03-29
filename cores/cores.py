@@ -73,7 +73,7 @@ def parse_args():
 def sigterm_handler(signal, frame):
 	try:
 		print('Trying to stop server process %s' % str(serverPid))
-		os.kill(serverPid)
+		os.kill(int(serverPid),9)
 	except Exception as e:
 		print(e)
 		pass
@@ -188,13 +188,14 @@ def server_start(port):
 	# Daemon True will stop the server once the script completes.
 	server_process.daemon = False
 	server_process.start()
+
+	global serverPid
 	serverPid=server_process.pid
+	
 
 
 	print(blue('*')+ 'HTTP Server started on Port: %s and PID: %s' % (str(httpPort),str(serverPid)))
-	#catch sigint
-	signal.signal(signal.SIGINT, sigint_handler)
-	signal.signal(signal.SIGTERM, sigterm_handler)
+
 
 
 
@@ -241,6 +242,11 @@ def main():
 	print(blue('i')+ 'Target URL:  '+ args.url)
 	print(blue('i')+ 'HTTP Server: http://%s:%s/index.html' %(ipAddress, args.p))
 	print('\n')
+
+
+	#catch sigint
+	signal.signal(signal.SIGINT, sigint_handler)
+	signal.signal(signal.SIGTERM, sigterm_handler)
 
 if __name__ == "__main__":
 
