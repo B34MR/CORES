@@ -50,6 +50,13 @@ def parse_args():
 		help='Turn on Verbosity\n')
 	# Parse the Arguments
 	args = parser.parse_args()
+	
+	#arg requirement checks
+	if args.url is None:
+		print('No URL specified, exiting...')
+		sys.exit(0)
+
+
 	# Defaults
 	if not args.m:
 	    args.m = 'GET'
@@ -58,6 +65,7 @@ def parse_args():
 
 	if args.p is None:
 		args.p=80
+	
 	#
 	return args
 
@@ -157,7 +165,7 @@ def server_start(port):
 	'''1. Starts Python's SimpleHTTPServer on specified port'''
 	#catch sigint
 	#signal.signal(signal.SIGINT, self.signal_handler)
-	httpPort = port
+	httpPort = int(port)
 	Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
 	httpd = SocketServer.TCPServer(("",httpPort), Handler)
 	server_process = multiprocessing.Process(target=httpd.serve_forever)
@@ -206,17 +214,20 @@ def main():
 		pass
 
 	# Start HTTP Server
-	server_start(80)
+	server_start(args.p)
 	print(blue('i')+ 'Target URL:  '+ args.url)
 	print(blue('i')+ 'HTTP Server: http://'+ipAddress+'/index.html')
 	print('\n')
 
 if __name__ == "__main__":
-	try:
+
+	main()
+	'''try:
 		main()
 	except (KeyboardInterrupt, SystemExit):
 		raise
-	except:
+	except Exception as e:
+		print('Error: %s' % e)
 		print(red('!')+'HTTP Server is still running, wait and try again.')
-		pass
+		pass'''
 		# report error and proceed
