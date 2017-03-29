@@ -7,6 +7,7 @@ try:
 	import time
 	import argparse
 	from argparse import RawTextHelpFormatter
+	import signal
 	# IP Query
 	import json, urllib, socket
 	# Simple HTTP Server
@@ -64,7 +65,7 @@ def signal_handler(self, signal, frame):
 	#catch sigint and stop gracefully.
 
 	#add this string below to functions
-	signal.signal(signal.SIGINT, self.signal_handler)
+	#signal.signal(signal.SIGINT, self.signal_handler)
 
 def dir_check(directory):
 	''' If specified directory does not exists then create specified directory '''
@@ -150,6 +151,8 @@ def html_template(javascript, filename):
 
 def server_start(port):
 	'''1. Starts Python's SimpleHTTPServer on specified port'''
+	#catch sigint
+	signal.signal(signal.SIGINT, self.signal_handler)
 	httpPort = port
 	Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
 	httpd = SocketServer.TCPServer(("",httpPort), Handler)
