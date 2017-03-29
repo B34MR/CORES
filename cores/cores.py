@@ -29,14 +29,13 @@ def parse_args():
 	parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter, description=' '+
 		str(banner(App, Version, Author, Contributors)) +
         ' Usage: python cores.py <URL> <OPTIONS> \n' +
-        ' Example Standard : python cores.py https://target-site.com/ -m GET\n' +
-        ' Example Alert Box: python cores.py https://target-site.com/ -s alert\n' +
-        ' Example Verbose  : python cores.py https://target-site.com/ -v\n')	
+        ' Example[1]: python cores.py https://target-site.com/\n' +
+        ' Example[2]: python cores.py https://target-site.com/ -m GET -s html -v\n')	
 	# Positional Arguments
 	url_group = parser.add_argument_group(colors.green + ' URL options' + colors.normal)
 	url_group.add_argument('url', type=str, metavar='', #required=True,
 		help='<Target URL>  ex: https://target-site.com/')
-	url_group.add_argument('-m', type=str, metavar='', required=True,
+	url_group.add_argument('-m', type=str, metavar='', #required=True,
 		help='<HTTP Method> ex: https://target-site.com/ -m GET\n')
 	# Style Arguments
 	style_group = parser.add_argument_group(colors.green + ' Style options' + colors.normal)
@@ -49,6 +48,12 @@ def parse_args():
 		help='Turn on Verbosity\n')
 	# Parse the Arguments
 	args = parser.parse_args()
+	# Defaults
+	if not args.m:
+	    args.m = 'GET'
+	elif not args.s:
+		args.s = 'alert'
+	#
 	return args
 
 def dir_check(directory):
@@ -112,7 +117,7 @@ def html_template(javascript, filename):
  			CORES {0}<br>
  			Description:Cross-Origin Resource Exploitation Server.<br>
  			Created by: Nick Sanzotta/@Beamr<br>
- 			Contributors: </p><br>
+ 			Contributors: {1}</p><br>
   			
   			<p style="margin-left: 55px">
   			<b>Loot:</b></p>
@@ -120,7 +125,7 @@ def html_template(javascript, filename):
 				<script src="js/cors.js"></script>
 		</body>
   	</html>"""
-  	html_indexPage = html_template.format(Version)
+  	html_indexPage = html_template.format(Version, Contributors)
   	with open(filename, 'w+') as f2:
   		f2.write(html_indexPage)
   	return html_indexPage
@@ -190,7 +195,9 @@ def main():
 if __name__ == "__main__":
 	try:
 		main()
-	except KeyboardInterrupt: # CHECK: Not working
-	    print "\n CORES has been stopped"
-	    pass
-
+	except (KeyboardInterrupt, SystemExit):
+		raise
+	except:
+		print('test')
+		pass
+		# report error and proceed
