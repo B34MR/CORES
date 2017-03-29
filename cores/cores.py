@@ -198,6 +198,6 @@ if __name__ == "__main__":
 	except (KeyboardInterrupt, SystemExit):
 		raise
 	except:
-		print('test')
+		print(red('!')+'HTTP Server is still running, wait an try again.')
 		pass
 		# report error and proceed
