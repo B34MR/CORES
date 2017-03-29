@@ -56,6 +56,16 @@ def parse_args():
 	#
 	return args
 
+def signal_handler(self, signal, frame):
+	print('You pressed Ctrl+C! Exiting...')
+	self.stopmonitor()
+	sys.exit(0)
+
+	#catch sigint and stop gracefully.
+
+	#add this string below to functions
+	signal.signal(signal.SIGINT, self.signal_handler)
+
 def dir_check(directory):
 	''' If specified directory does not exists then create specified directory '''
 	if not os.path.exists(directory):
@@ -151,6 +161,8 @@ def server_start(port):
 
 
 def main():
+
+
 	# Banner
 	cls()
 	banner(App, Version, Author, Contributors)
@@ -198,6 +210,6 @@ if __name__ == "__main__":
 	except (KeyboardInterrupt, SystemExit):
 		raise
 	except:
-		print(red('!')+'HTTP Server is still running, wait an try again.')
+		print(red('!')+'HTTP Server is still running, wait and try again.')
 		pass
 		# report error and proceed
