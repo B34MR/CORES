@@ -38,6 +38,7 @@ def parse_args():
 		help='<Target URL>  ex: https://target-site.com/')
 	url_group.add_argument('-m', type=str, metavar='', #required=True,
 		help='<HTTP Method> ex: https://target-site.com/ -m GET\n')
+	url_group.add_argument('-p', metavar='8080', help='Optionally specify a server port to use. Default is 80')
 	# Style Arguments
 	style_group = parser.add_argument_group(colors.green + ' Style options' + colors.normal)
 	style_group.add_argument('-s', type=str, metavar='', #required=True,
@@ -54,6 +55,9 @@ def parse_args():
 	    args.m = 'GET'
 	elif not args.s:
 		args.s = 'alert'
+
+	if args.p is None:
+		args.p=80
 	#
 	return args
 
