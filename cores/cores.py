@@ -243,9 +243,9 @@ def main():
 	print('\n')
 
 if __name__ == "__main__":
-	main()
 
-	'''try:
+
+	try:
 		main()
 	except (KeyboardInterrupt, SystemExit):
 		raise
@@ -253,4 +253,4 @@ if __name__ == "__main__":
 		print('Error: %s' % e)
 		print(red('!')+'HTTP Server is still running, wait and try again.')
 		pass
-		# report error and proceed'''
+		# report error and proceed
