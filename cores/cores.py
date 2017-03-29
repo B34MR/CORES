@@ -59,7 +59,7 @@ def parse_args():
 
 def signal_handler(self, signal, frame):
 	print('You pressed Ctrl+C! Exiting...')
-	self.stopmonitor()
+	#other cleanup functions here
 	sys.exit(0)
 
 	#catch sigint and stop gracefully.
@@ -152,7 +152,7 @@ def html_template(javascript, filename):
 def server_start(port):
 	'''1. Starts Python's SimpleHTTPServer on specified port'''
 	#catch sigint
-	signal.signal(signal.SIGINT, self.signal_handler)
+	#signal.signal(signal.SIGINT, self.signal_handler)
 	httpPort = port
 	Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
 	httpd = SocketServer.TCPServer(("",httpPort), Handler)
