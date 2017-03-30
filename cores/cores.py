@@ -19,9 +19,9 @@ except Exception as e:
 	sys.exit(1)
 
 App = ' CORES '
-Version = 'v1.03282017'
+Version = 'v1.03292017'
 Author = 'Nick Sanzotta/@Beamr'
-Contributors = ''
+Contributors = 'Bill Harshbarger/github.com/bharshbarger'
 
 def parse_args():
 	''' CLI Argument Options'''
@@ -79,7 +79,7 @@ def sigterm_handler(signal, frame):
 
 
 def sigint_handler(signal, frame):
-	
+
 	print('You pressed Ctrl+C! Exiting...')
 	server_kill()
 
