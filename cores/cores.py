@@ -178,8 +178,6 @@ def html_template(javascript, filename):
 
 def server_start(port):
 	'''1. Starts Python's SimpleHTTPServer on specified port'''
-	#serverPid=None
-
 	httpPort = int(port)
 	Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
 	httpd = SocketServer.TCPServer(("",httpPort), Handler)
@@ -260,7 +258,6 @@ if __name__ == "__main__":
 	try:
 		main()
 	except (KeyboardInterrupt, SystemExit):
-		server_kill()
 		raise
 	except Exception as e:
 		print('Error: %s' % e)
