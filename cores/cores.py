@@ -71,27 +71,18 @@ def parse_args():
 
 
 def sigterm_handler(signal, frame):
-	try:
-		print('Trying to stop server process %s' % str(serverPid))
-		os.kill(int(serverPid),9)
-	except Exception as e:
-		print(e)
-		pass
+
+	print('Trying to stop server process %s' % str(serverPid))
+	server_kill()
+
 
 
 
 def sigint_handler(signal, frame):
+	
 	print('You pressed Ctrl+C! Exiting...')
+	server_kill()
 
-
-
-	try:
-		print('Trying to stop server process %s' % str(serverPid))
-		os.kill(int(serverPid),9)
-	except Exception as e:
-		print(e)
-		pass
-	sys.exit(0)
 
 
 def dir_check(directory):
