@@ -7,6 +7,7 @@ try:
 	import time
 	import argparse
 	from argparse import RawTextHelpFormatter
+	import signal
 	# IP Query
 	import json, urllib, socket
 	# Simple HTTP Server
@@ -18,9 +19,9 @@ except Exception as e:
 	sys.exit(1)
 
 App = ' CORES '
-Version = 'v1.03282017'
+Version = 'v1.03292017'
 Author = 'Nick Sanzotta/@Beamr'
-Contributors = ''
+Contributors = 'Bill Harshbarger/github.com/bharshbarger'
 
 def parse_args():
 	''' CLI Argument Options'''
@@ -33,10 +34,11 @@ def parse_args():
         ' Example[2]: python cores.py https://target-site.com/ -m GET -s html -v\n')	
 	# Positional Arguments
 	url_group = parser.add_argument_group(colors.green + ' URL options' + colors.normal)
-	url_group.add_argument('url', type=str, metavar='', #required=True,
+	url_group.add_argument('url', type=str, metavar='http://site.com/path', #required=True,
 		help='<Target URL>  ex: https://target-site.com/')
 	url_group.add_argument('-m', type=str, metavar='', #required=True,
 		help='<HTTP Method> ex: https://target-site.com/ -m GET\n')
+	url_group.add_argument('-p', metavar='8080', help='Optionally specify a server port to use. Default is 80')
 	# Style Arguments
 	style_group = parser.add_argument_group(colors.green + ' Style options' + colors.normal)
 	style_group.add_argument('-s', type=str, metavar='', #required=True,
@@ -48,13 +50,40 @@ def parse_args():
 		help='Turn on Verbosity\n')
 	# Parse the Arguments
 	args = parser.parse_args()
+	
+	#arg requirement checks
+	if args.url is None:
+		print('No URL specified, exiting...')
+		sys.exit(0)
+
+
 	# Defaults
 	if not args.m:
 	    args.m = 'GET'
 	elif not args.s:
 		args.s = 'alert'
+
+	if args.p is None:
+		args.p=80
+	
 	#
 	return args
+
+
+def sigterm_handler(signal, frame):
+
+	print('Trying to stop server process %s' % str(serverPid))
+	server_kill()
+
+
+
+
+def sigint_handler(signal, frame):
+
+	print('You pressed Ctrl+C! Exiting...')
+	server_kill()
+
+
 
 def dir_check(directory):
 	''' If specified directory does not exists then create specified directory '''
@@ -140,17 +169,34 @@ def html_template(javascript, filename):
 
 def server_start(port):
 	'''1. Starts Python's SimpleHTTPServer on specified port'''
-	httpPort = port
+	httpPort = int(port)
 	Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
 	httpd = SocketServer.TCPServer(("",httpPort), Handler)
 	server_process = multiprocessing.Process(target=httpd.serve_forever)
+	
 	# Daemon True will stop the server once the script completes.
 	server_process.daemon = False
 	server_process.start()
-	print(blue('*')+ 'HTTP Server started on Port: ' + str(httpPort))
+
+	global serverPid
+	serverPid=server_process.pid
+	
+
+
+	print(blue('*')+ 'HTTP Server started on Port: %s and PID: %s' % (str(httpPort),str(serverPid)))
+
+
+def server_kill():
+	try:
+		print('Trying to stop server process %s' % str(serverPid))
+		os.kill(int(serverPid),9)
+	except Exception as e:
+		print(e)
 
 
 def main():
+
+
 	# Banner
 	cls()
 	banner(App, Version, Author, Contributors)
@@ -187,17 +233,25 @@ def main():
 		pass
 
 	# Start HTTP Server
-	server_start(80)
+	server_start(args.p)
 	print(blue('i')+ 'Target URL:  '+ args.url)
-	print(blue('i')+ 'HTTP Server: http://'+ipAddress+'/index.html')
+	print(blue('i')+ 'HTTP Server: http://%s:%s/index.html' %(ipAddress, args.p))
 	print('\n')
 
+
+	#catch sigint
+	signal.signal(signal.SIGINT, sigint_handler)
+	signal.signal(signal.SIGTERM, sigterm_handler)
+
 if __name__ == "__main__":
+	#main()
+
 	try:
 		main()
 	except (KeyboardInterrupt, SystemExit):
 		raise
-	except:
-		print(red('!')+'HTTP Server is still running, wait an try again.')
+	except Exception as e:
+		print('Error: %s' % e)
+		print(red('!')+'HTTP Server is still running, wait and try again.')
 		pass
 		# report error and proceed
