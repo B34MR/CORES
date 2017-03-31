@@ -22,7 +22,7 @@
     Example: (Insecure Work Around, Shares with any domain with credentials!)
 	<? php 
 	header('Access-Control-Allow-Origin: ' + $_SERVER['HTTP_ORIGIN']);
-	header('Access-Control-Allow-Credentias: true');
+	header('Access-Control-Allow-Credentials: true');
 
 # Installation:
 	# git clone https://github.com/NickSanzotta/CORES.git
