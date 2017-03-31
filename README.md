@@ -1,29 +1,33 @@
 # C.O.R.E.S
-    Cross-Origin Resource Exploitation Server
+    CORES v1.03312017
+    Description:Cross-Origin Resource Exploitation Server.
+    Created by: Nick Sanzotta/@Beamr
+    Contribution thanks to Bill Harshbarger
 
-# Cross-Origin Resource Exploitation Server
-    This tool leverages a common misconfiguration in CORS that allows Cross-Origin Sharing 
-    from all domains with credentials!
-    
-    The CORS spec disallows the following setting: 
-    Access-Control-Allow-Origin: *
-    Access-Control-Allow-Credentials: true
-    
-    A common misconfiguration or work around for this restriction is the following 
-    Server side example:
-    <? php
-    header('Access-Control-Allow-Origin: ' + $_SERVER['HTTP_ORIGIN']);
-    header('Access-Control-Allow-Credentias: true');
-    
 # Usage
-    Usage: python cores.py <URL> <OPTIONS>
-    Example[1]: python cores.py https://target-site.com/
-    Example[2]: python cores.py https://target-site.com/ -m GET -s html -v
+    usage: cores.py cores.py <URL> <OPTIONS>
+	Example: python cores.py https://site.com/
+	Example: python cores.py https://site.com/ -m GET -p 8080 -s alert -v -a
+
+         [-m, Define HTTP request method ex: -m POST]
+         [-p, Define HTTP Server port ex: -p 8080]
+         [-a, Auto-launches FireFox to automatically visit destination server.]
+
+         [-s, Define Log style ex: JavaScript Alert / Inner HTML ]
     
-    Example 1 is the most common, simply supply your target URL and cores will use 
-    the HTTP method GET by default.
-    
-    Example 2 demonstrates the HTTP (-m)ethod and (-s)tyle of the Proof of Concept (PoC) being specified.
-    "-s html" will deliver the loot within the HTML page while the latter "-s alert" will diplay the loot
-    inside a JavaScript Alert box.
+    optional arguments:
+    -h, --help            show this help message and exit
+    -a                    Enables FireFox to auto-launch.
+    -v, --verbose         Turn on Verbosity
+
+    URL options:
+    URL [http://site.com/]
+                          Define vulnerable CORS targert URL ex: https://site.com/
+    -m [GET]              Define HTTP request method [GET, HEAD, POST] ex: -m POST
+    -p [80]               Define HTTP Server Port ex: -p 8080
+
+    Log style options:
+    -s [alert, html]      ex: -s html   Displays logs in generated HTML.
+                          ex: -s alert  Displays logs in JavaScript Alert function.
+
 
