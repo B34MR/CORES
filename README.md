@@ -3,8 +3,31 @@
     Description:Cross-Origin Resource Exploitation Server.
     Created by: Nick Sanzotta/@Beamr
     Contribution thanks to Bill Harshbarger
+    
+    This tool 'cores.py' will launch a Python SimpleHTTPServer configured with HTML & JavaScript code to 
+    execute and perform a CORS Proof of Concept (PoC) vulnerability.
+    At a minimum the user will need to supply a URL vulnerable to excessive CORS along with the correct HTTP (-m)ethod.
+    Optionally, the user has the ability to (-a) Autolaunch FireFox and execute the payload.
+	
+# Overview:
+    The CORS spec denies the header Access-Control-Allow-Origin (ACAO) to be configured with 
+    '*' while allowing Access-Control-Allow-Credential (ACAC) set to 'true'.
+    Example: (NOT Allowed!)
+	Access-Control-Allow-Origin: *
+	Access-Control-Allow-Credentials: true
+	
+    A commonly found misconfiguration or work around for this restriction is the following.
+    Example: (Insecure Work Around, Shares with any domain with credentials!)
+	<? php 
+	header('Access-Control-Allow-Origin: ' + $_SERVER['HTTP_ORIGIN']);
+	header('Access-Control-Allow-Credentias: true');
 
-# Usage
+# Installation:
+	# git clone https://github.com/NickSanzotta/CORES.git
+	# cd CORES/cores/
+	# python cores.py
+	
+# Usage:
     usage: cores.py cores.py <URL> <OPTIONS>
 	Example: python cores.py https://site.com/
 	Example: python cores.py https://site.com/ -m GET -p 8080 -s alert -v -a
@@ -18,7 +41,7 @@
     optional arguments:
     -h, --help            show this help message and exit
     -a                    Enables FireFox to auto-launch.
-    -v, --verbose         Turn on Verbosity
+    -v, --verbose         Turn on Verbosity (Displays JavaScript code in STDOUT)
 
     URL options:
     URL [http://site.com/]
@@ -29,5 +52,4 @@
     Log style options:
     -s [alert, html]      ex: -s html   Displays logs in generated HTML.
                           ex: -s alert  Displays logs in JavaScript Alert function.
-
 
