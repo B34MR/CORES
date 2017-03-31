@@ -4,9 +4,11 @@
     Created by: Nick Sanzotta/@Beamr
     Contribution thanks to Bill Harshbarger
     
-    This tool 'cores.py' will launch a Python SimpleHTTPServer configured with HTML & JavaScript code to 
-    execute and perform a CORS Proof of Concept (PoC) vulnerability.
-    At a minimum the user will need to supply a URL vulnerable to excessive CORS along with the correct HTTP (-m)ethod.
+    This tool 'cores.py' will launch a Python SimpleHTTPServer configured with 
+    HTML & JavaScript code to execute and perform a CORS Proof of Concept (PoC) vulnerability.
+    At a minimum the user will need to supply a URL vulnerable to excessive CORS along 
+    with the correct HTTP (-m)ethod.
+    
     Optionally, the user has the ability to (-a) Autolaunch FireFox and execute the payload.
 	
 # Overview:
