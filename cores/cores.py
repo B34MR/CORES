@@ -210,7 +210,7 @@ if __name__ == '__main__':
 
 	# Check for (-v)erbose
 	if args.verbose:
-		print(html_indexPage)
+		print(cors_js)
 	else:
 		pass
 	# Start server
