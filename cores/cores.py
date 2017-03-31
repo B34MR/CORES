@@ -10,7 +10,7 @@ try:
 	# Simple HTTP Server
 	import SocketServer, SimpleHTTPServer, multiprocessing
 	# Browser Launch
-	import webbrowser, platform
+	import webbrowser
 	# Custom theme
 	from theme import *
 except Exception as e:
