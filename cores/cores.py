@@ -58,7 +58,7 @@ def parse_args():
 	# ME/Verbose Arguments
 	group = parser.add_mutually_exclusive_group()
 	group.add_argument('-v','--verbose',action='store_true',
-		help='Turn on Verbosity\n')
+		help='Turn on Verbosity (Displays JavaScript code in STDOUT)\n')
 	# Parse/Return the Arguments
 	args = parser.parse_args()
 	return args
