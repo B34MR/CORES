@@ -1,4 +1,4 @@
-# C.O.R.E.S
+# C.O.R.E.S (https://img.shields.io/badge/python-2.7-blue.svg)
     CORES v1.03312017
     Description:Cross-Origin Resource Exploitation Server.
     Created by: Nick Sanzotta/@Beamr
