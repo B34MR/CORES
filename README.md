@@ -30,28 +30,33 @@
 	# python cores.py
 	
 # Usage:
-    usage: cores.py cores.py <URL> <OPTIONS>
-	Example: python cores.py https://site.com/
-	Example: python cores.py https://site.com/ -m GET -p 8080 -s alert -v -a
+	usage: cores.py cores.py <URL> <OPTIONS>
+		Example: python cores.py https://site.com/
+		Example: python cores.py https://site.com/ -m POST -p 8080 -c -s alert --verbose --auto
 
-         [-m, Define HTTP request method ex: -m POST]
-         [-p, Define HTTP Server port ex: -p 8080]
-         [-a, Auto-launches FireFox to automatically visit destination server.]
+		 [-m, Define HTTP request method ex: -m POST]
+		 [-p, Define HTTP Server port ex: -p 8080]
 
-         [-s, Define Log style ex: JavaScript Alert / Inner HTML ]
-    
-    optional arguments:
-    -h, --help            show this help message and exit
-    -a                    Enables FireFox to auto-launch.
-    -v, --verbose         Turn on Verbosity (Displays JavaScript code in STDOUT)
+		 [-c, Sets "Access-Control-Allow-Credentials: true" ex: -c]
+		 [-a, Auto-launches FireFox to automatically visit destination server.]
+		 [-s, Select Log style ex: JavaScript Alert / Inner HTML ]
 
-    URL options:
-    URL [http://site.com/]
-                          Define vulnerable CORS targert URL ex: https://site.com/
-    -m [GET]              Define HTTP request method [GET, HEAD, POST] ex: -m POST
-    -p [80]               Define HTTP Server Port ex: -p 8080
 
-    Log style options:
-    -s [alert, html]      ex: -s html   Displays logs in generated HTML.
-                          ex: -s alert  Displays logs in JavaScript Alert function.
+	 None
+
+	optional arguments:
+	  -h, --help            show this help message and exit
+	  -c, --creds           Sets "Access-Control-Allow-Credentials: true"
+	  -a, --auto            Enables FireFox to auto-launch.
+	  -v, --verbose         Turn on Verbosity (Displays JavaScript code in STDOUT)
+
+	 URL options:
+	  URL [http://site.com/]
+				Define vulnerable CORS targert URL ex: https://site.com/
+	  -m [GET]              Define HTTP request method [GET, HEAD, POST] ex: -m POST
+	  -p [80]               Define HTTP Server Port ex: -p 8080
+
+	 Log style options:
+	  -s [alert, html]      ex: -s html   Displays logs in generated HTML.
+				ex: -s alert  Displays logs in JavaScript Alert function.
 
